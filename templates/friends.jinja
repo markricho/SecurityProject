@@ -1,0 +1,11 @@
+<!-- 
+    Login page, user is redirected here when the user clicks on Login.
+-->
+
+{% extends 'base.jinja' %}
+
+{% block content %} 
+    <h1>Friends</h1>
+    <p>Username</p>
+    <button><a href={{ url_for('login') }}>Chat</a></button>
+{% endblock %}
