@@ -5,10 +5,10 @@ the socket event handlers are inside of socket_routes.py
 '''
 
 from flask import Flask, render_template, request, abort, url_for
+from passlib.hash import sha256_crypt
 from flask_socketio import SocketIO
 import db
 import secrets
-from passlib.hash import sha256_crypt
 
 # import logging
 
@@ -29,16 +29,6 @@ import socket_routes
 @app.route("/")
 def index():
     return render_template("index.jinja")
-
-# friends page
-@app.route("/friends")
-def friends():
-    return render_template("friends.jinja")
-
-def home():
-    if request.args.get("username") is None:
-        abort(404)
-    return render_template("home.jinja")
 
 # login page
 @app.route("/login")
@@ -87,11 +77,14 @@ def page_not_found(_):
     return render_template('404.jinja'), 404
 
 # home page, where the messaging app is
-@app.route("/home")
+@app.route("/home", methods=["POST", "GET"])
 def home():
     if request.args.get("username") is None:
         abort(404)
-    return render_template("home.jinja", username=request.args.get("username"))
+    friend_list = ["bob", "steve", "harry"]
+    return render_template("home.jinja", username=request.args.get("username"), friend_list=friend_list)
+
+
 
 if __name__ == '__main__':
     socketio.run(app, ssl_context=('cert.pem', 'key.pem'))

@@ -19,6 +19,14 @@
         padding: 2px;
     }
 
+    #friend_box {
+        border: 1px solid black; 
+        height: 200px; 
+        width: 200px; 
+        overflow: auto;
+        padding: 2px;
+    }
+
     .text  {
         margin-top: 2px;
         margin-bottom: 2px;
@@ -34,9 +42,6 @@
 </nav>
 
 <h1>Messaging App </h1>
-<h3>Friends List: </h3>
-
-<!-- <li style="display:inline-block">Friends:  {{ friends_list }} </li> -->
 
 <main>
     <!-- The messages are displayed here -->
@@ -48,9 +53,10 @@
         <p class="text">Chat with: </p>
         <input id="receiver" placeholder="username">
         <!-- MDN says its bad practice to use the onclick attribute,
-        but we're using it anyways coz its easy :-->
+        but we're using it anyways coz its easy :)-->
         <button onclick="join_room()">Chat</button>
     </section>
+
 
     <!-- The (message) input box is set to display: none initially, 
     this means the input box is "invisible" initially-->
@@ -60,7 +66,28 @@
         <button onclick="send()">Send</button>
         <button onclick="leave()">Leave Room</button>
     </section>
+
+   
+    <section id="add_friend">
+        <p class="text">Add Friend: </p>
+        <input id="friendname" placeholder="friends username">
+        <button onclick="add_friend()">Add Friend</button>
+    </section>
+
+    <section id="friend_list">
+        <p class="text">Friends List: </p>
+    </section>
+
+    <section id="friends">
+        {% for friend in friend_list %}
+            <button onclick="chat_with_friend()">{{ friend }}</button><br/>
+        {% endfor %}
+    </section>
+
+
 </main>
+
+
 
 <script src="/static/js/libs/socket.io.min.js"></script>
 <script>
@@ -81,6 +108,7 @@
             join_room();
         }
     })
+
 
     $(document).ready(() => {
         // room_id is undefined if the user hasn't joined a room
@@ -109,7 +137,7 @@
     socket.on("incoming", (msg, color="black") => {
         add_message(msg, color);
     })
-    
+
     // we'll send the message to the server by emitting a "send" event
     function send() {
         let message = $("#message").val();
@@ -139,6 +167,8 @@
             // now we'll show the input box, so the user can input their message
             $("#chat_box").hide();
             $("#input_box").show();
+            $("#add_friend").hide();
+
         });
      
     }
@@ -150,6 +180,7 @@
         socket.emit("leave", username, room_id);
         $("#input_box").hide();
         $("#chat_box").show();
+        $("#add_friend").show();
     }
 
     // function to add a message to the message box
@@ -158,6 +189,24 @@
         let box = $("#message_box");
         let child = $(`<p style="color:${color}; margin: 0px;"></p>`).text(message);
         box.append(child);
+    }
+
+     // add friend request to server to try and add the friend to server
+    function add_friend() {
+        socket.emit("add_friend", username, friendname, (res) => {
+            if (typeof res != "number") {
+                alert(res);
+                return;
+            }
+            $("#friend_message_rec").hide();
+        });
+     
+    }
+
+    function chat_with_friend() {
+        $("#chat_box").hide();
+        $("#input_box").show();
+        $("#add_friend").hide();
     }
     
 </script>
